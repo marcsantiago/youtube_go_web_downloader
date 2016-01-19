@@ -4,19 +4,33 @@
 	<meta charset="utf-8">
 	<title>YouTube Downloader</title>
 	<link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="dropzone.css">
+  <!-- <link rel="stylesheet" href="dropzone.css"> -->
   <link rel="stylesheet" href="bootstrap.min.css">
 </head>
 <body>
+
+  <br /><br />
+  <div class="row">
+    <div class="col-sm-6 col-l-6 col-md-6">
+      <form class="form-horizontal" role="form" action="/run_setup" method="post">
+        <div class="form-group"> 
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">Run Setup</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <br /><br />
   <div class="row">
     <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-5 col-l-offset-5 col-sm-offset-5">
       <div id="btn-form" class="btn-group" data-toggle="buttons">
         <label class="btn btn-primary active">
-          <input type="radio" name="options" id="url_mode" checked>URL MODE
+          <input type="radio" name="options" id="url_mode" checked>SINGLE DOWNLOAD
         </label>
         <label class="btn btn-primary">
-          <input type="radio" name="options" id="file_mode">FILE MODE
+          <input type="radio" name="options" id="file_mode">BATCH DOWNLOAD
         </label>
       </div>
     </div>
@@ -26,24 +40,28 @@
 
   <div id="url_div" class="row">
     <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
-      <div class="form-group">
-        <label for="usr">URL:</label>
-        <input type="text" class="form-control" name="url" id="url">
-      </div>
+      <form class="form-horizontal" role="form" action="/download_mp3" method="post">
+        <div class="form-group">
+          <label for="usr">URL:</label>
+          <input type="text" class="form-control" name="url" id="url">
+          <br />
+          <button type="submit" class="btn btn-default pull-right">Download Mp3</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <div id="dropzone_div" style="display: none;" class="container-fluid col-centered">
+  <div id="batch_div" style="display: none;" class="container-fluid col-centered">
     <div class="row">
       <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
-      	<h3>Please Attach A Single Text Document Containing Youtube URLs. Each Url Should Be NewLine Deliminated.</h3>
-      </div>
-    </div>
-    <hr>
-    <div class="row"> 
-      <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
-        <form action="/upload" class="dropzone" drop-zone="" id="file-dropzone"></form>
-      </div>
+        <form class="form-horizontal" role="form" action="/download_mp3s" method="post">
+          <div class="form-group">
+            <label for="usr">URLS:</label>
+            <textarea type="text" class="form-control" name="urls" id="urls">Each Url Should Be Seperated With a Newline</textarea>
+            <br />
+            <button type="submit" class="btn btn-default pull-right">Download Mp3s</button>
+          </div>
+        </form>
     </div>
   </div>
 
@@ -51,17 +69,17 @@
 </body>
 
 <script src="jquery-2.2.0.min.js"></script>
-<script src="dropzone.js"></script>
+<!-- <script src="dropzone.js"></script> -->
 <script src="bootstrap.min.js"></script>
 <script>
   $(function() {
     
     $('#btn-form').change(function(){
       if($('#url_mode').is(':checked')){
-        $('#dropzone_div').hide();
+        $('#batch_div').hide();
         $('#url_div').show();
       } else{
-        $('#dropzone_div').show();
+        $('#batch_div').show();
         $('#url_div').hide();
       }
     });
