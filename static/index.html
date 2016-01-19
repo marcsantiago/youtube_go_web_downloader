@@ -12,15 +12,19 @@
   <br /><br />
   <div class="row">
     <div class="col-sm-6 col-l-6 col-md-6">
-      <form class="form-horizontal" role="form" action="/run_setup" method="post">
+      <!-- <form class="form-horizontal" role="form" action="/run_setup" method="post"> -->
         <div class="form-group"> 
           <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" class="btn btn-default">Run Setup</button>
+            <button id="setup_btn" class="btn btn-default">Run Setup</button>
+            <br />
+            <div id="running" style="display: none;">Setup Running</div>
+            <div id="complete" style="display: none;">Setup Complete</div>
           </div>
         </div>
-      </form>
+      <!-- </form> -->
     </div>
   </div>
+
 
   <br /><br />
   <div class="row">
@@ -105,6 +109,21 @@
 
       }
     });
+
+    $("#setup_btn").click(function() {
+        $('#running').show();
+      $.post( "/run_setup", {}, function(data) {
+        var res = data;
+        if (res == "ok") {
+          $('#complete').show();
+          $('#running').hide();
+        }
+      });
+    });
+
+    if ($("#complete").text() == "Setup Complete") {
+      $("#setup_btn").prop("disabled",true);
+    }
 
   });
 </script>

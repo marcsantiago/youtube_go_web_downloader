@@ -14,6 +14,17 @@ func Log(handler http.Handler) http.Handler {
 	})
 }
 
+func setup(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		log.Println("here")
+
+		// Make sure that the page doesn't change
+		//http.Redirect(w, r, "http://localhost:3000/", 301)
+		w.Write([]byte("ok"))
+
+	}
+}
+
 func main() {
 
 	switch runtime.GOOS {
@@ -29,6 +40,7 @@ func main() {
 
 	assets := http.StripPrefix("/", http.FileServer(http.Dir("static/")))
 	http.Handle("/", assets)
+	http.HandleFunc("/run_setup", setup)
 
 	log.Println("Listening at port 3000")
 	log.Fatal(http.ListenAndServe(":3000", Log(http.DefaultServeMux)))
