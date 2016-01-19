@@ -110,7 +110,7 @@
     });
 
     $("#setup_btn").click(function() {
-        $('#setup_status').text("Setup Running");
+        $('#setup_status').text("Setup is running, this proccess takes a while, please be wait.  Status will switch to complete when done");
       $.post( "/run_setup", {}, function(data) {
         var res = data;
         if (res == "ok") {
