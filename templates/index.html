@@ -3,24 +3,24 @@
 <head>
 	<meta charset="utf-8">
 	<title>YouTube Downloader</title>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="static/style.css">
   <!-- <link rel="stylesheet" href="dropzone.css"> -->
-  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="static/bootstrap.min.css">
 </head>
 <body>
 
   <br /><br />
   <div class="row">
     <div class="col-sm-6 col-l-6 col-md-6">
-      <!-- <form class="form-horizontal" role="form" action="/run_setup" method="post"> -->
         <div class="form-group"> 
           <div class="col-sm-offset-2 col-sm-10">
-            <button id="setup_btn" class="btn btn-default">Run Setup</button>
+           {{ if eq .Setup false}}
+             <button id="setup_btn" class="btn btn-default">Run Setup</button>
+           {{ end }}
             <br />
             <div id="setup_status"></div>
           </div>
         </div>
-      <!-- </form> -->
     </div>
   </div>
 
@@ -85,9 +85,9 @@
 
 </body>
 
-<script src="jquery-2.2.0.min.js"></script>
+<script src="static/jquery-2.2.0.min.js"></script>
 <!-- <script src="dropzone.js"></script> -->
-<script src="bootstrap.min.js"></script>
+<script src="static/bootstrap.min.js"></script>
 <script>
   $(function() {
     
