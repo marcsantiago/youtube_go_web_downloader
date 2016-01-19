@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 )
 
@@ -16,12 +18,35 @@ func Log(handler http.Handler) http.Handler {
 
 func setup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		log.Println("here")
 
+		if runtime.GOOS == "windows" {
+			path, err := os.Getwd()
+			if err != nil {
+				log.Fatal(err)
+			}
+			batScript := filepath.Join(path, "/scripts/install_ffmpeg.bat")
+
+			log.Printf("Copying windows_ffmpeg contents to c:\\FFMPEG and adding the path env c:\\FFMPEG\\bin\n")
+			cmd := exec.Command("cmd", "/C", batScript)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+
+		} else {
+			path, err := filepath.Abs("")
+			if err != nil {
+				log.Fatal(err)
+			}
+			shellScript := filepath.Join(path, "/scripts/install_ffmpeg.sh")
+			log.Printf("Please be patient installing homebrew, ffpmeg, and updating take a while")
+			cmd := exec.Command("/bin/sh", shellScript)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		}
 		// Make sure that the page doesn't change
 		//http.Redirect(w, r, "http://localhost:3000/", 301)
 		w.Write([]byte("ok"))
-
 	}
 }
 

@@ -17,8 +17,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <button id="setup_btn" class="btn btn-default">Run Setup</button>
             <br />
-            <div id="running" style="display: none;">Setup Running</div>
-            <div id="complete" style="display: none;">Setup Complete</div>
+            <div id="setup_status"></div>
           </div>
         </div>
       <!-- </form> -->
@@ -111,12 +110,11 @@
     });
 
     $("#setup_btn").click(function() {
-        $('#running').show();
+        $('#setup_status').text("Setup Running");
       $.post( "/run_setup", {}, function(data) {
         var res = data;
         if (res == "ok") {
-          $('#complete').show();
-          $('#running').hide();
+          $('#setup_status').text("Setup Complete");
         }
       });
     });
