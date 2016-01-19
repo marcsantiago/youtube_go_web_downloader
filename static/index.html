@@ -8,9 +8,32 @@
   <link rel="stylesheet" href="bootstrap.min.css">
 </head>
 <body>
-  
+  <br /><br />
+  <div class="row">
+    <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-5 col-l-offset-5 col-sm-offset-5">
+      <div id="btn-form" class="btn-group" data-toggle="buttons">
+        <label class="btn btn-primary active">
+          <input type="radio" name="options" id="url_mode" checked>URL MODE
+        </label>
+        <label class="btn btn-primary">
+          <input type="radio" name="options" id="file_mode">FILE MODE
+        </label>
+      </div>
+    </div>
+  </div>
   <br />
-  <div class="container-fluid col-centered">
+  <br />
+
+  <div id="url_div" class="row">
+    <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
+      <div class="form-group">
+        <label for="usr">URL:</label>
+        <input type="text" class="form-control" name="url" id="url">
+      </div>
+    </div>
+  </div>
+
+  <div id="dropzone_div" style="display: none;" class="container-fluid col-centered">
     <div class="row">
       <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
       	<h3>Please Attach A Single Text Document Containing Youtube URLs. Each Url Should Be NewLine Deliminated.</h3>
@@ -30,4 +53,19 @@
 <script src="jquery-2.2.0.min.js"></script>
 <script src="dropzone.js"></script>
 <script src="bootstrap.min.js"></script>
+<script>
+  $(function() {
+    
+    $('#btn-form').change(function(){
+      if($('#url_mode').is(':checked')){
+        $('#dropzone_div').hide();
+        $('#url_div').show();
+      } else{
+        $('#dropzone_div').show();
+        $('#url_div').hide();
+      }
+    });
+  });
+</script>
+
 </html>
