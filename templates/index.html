@@ -30,9 +30,9 @@
       <form role="form">
         <div class="form-group">
           <label for="mp3_path">MP3 Download Folder Path:</label>
-          <input style="width:50%" type="text" name="mp3_path" id="mp3_path" value="{{ .Mp3Path }}">
+          <input style="width:50%" type="text" name="mp3_path" id="mp3_path" value="{{ .Mp3Path }}"><span><i id="mp3_icon" class=""></i></span>
         </div>
-        <button id="mp3_path_btn" class="btn btn-default">Validate MP3 Path</button>
+        <button id="mp3_path_btn" class="btn btn-default">Change Or Validate MP3 Path</button>
       </form>
     </div>
   </div>
@@ -42,9 +42,9 @@
       <form role="form">
         <div class="form-group">
           <label for="video_path">Video Download Folder Path:</label>
-          <input style="width:50%" type="text" name="video_path" id="video_path" value="{{ .VideoPath }}">
+          <input style="width:50%" type="text" name="video_path" id="video_path" value="{{ .VideoPath }}"><span><i id="video_icon" class=""></i></span>
         </div>
-        <button id="video_path_btn" class="btn btn-default">Validate Video Path</button>
+        <button id="video_path_btn" class="btn btn-default">Change Or Validate Video Path</button>
       </form>
     </div>
   </div>
@@ -149,7 +149,9 @@
       $.post( "/validate_mp3_path", {'folderpath': path}, function(data) {
         var res = data;
         if (res == "ok") {
-          alert('here');
+          $("#mp3_icon").attr("class","glyphicon glyphicon-remove");
+        } else {
+          $("#mp3_icon").attr("class","glyphicon glyphicon-remove");
         }
       });
     });
@@ -158,9 +160,10 @@
       var path = $('#video_path').val();
       $.post( "/validate_video_path", {'folderpath': path}, function(data) {
         var res = data;
-        alert(res);
         if (res == "ok") {
-          alert("vid okay")
+          $("#video_icon").attr("class","glyphicon glyphicon-remove");
+        } else {
+          $("#video_icon").attr("class","glyphicon glyphicon-remove");
         }
       });
     });
