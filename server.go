@@ -85,7 +85,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 		masterConfig.Mp3Path = temp.Mp3Path
 		masterConfig.VideoPath = temp.VideoPath
 	}
-	log.Printf("%v\n", masterConfig)
 	t.Execute(w, &masterConfig)
 }
 
@@ -173,7 +172,7 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 					log.Fatal(err)
 				}
 				json.Unmarshal(file, &temp)
-				setupConfig["Mp3Path"] = temp.Mp3Path
+				setupConfig["Mp3Path"] = mp3Path
 				setupConfig["VideoPath"] = temp.VideoPath
 			} else {
 				setupConfig["Mp3Path"] = mp3Path
@@ -228,7 +227,7 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 				}
 				json.Unmarshal(file, &temp)
 				setupConfig["Mp3Path"] = temp.Mp3Path
-				setupConfig["VideoPath"] = temp.VideoPath
+				setupConfig["VideoPath"] = videoPath
 			} else {
 				setupConfig["VideoPath"] = videoPath
 			}
