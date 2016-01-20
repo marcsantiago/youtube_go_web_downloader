@@ -144,6 +144,29 @@
       });
     });
 
+    $("#mp3_path_btn").click(function() {
+      var path = $('#mp3_path').val();
+      $.post( "/validate_mp3_path", {'folderpath': path}, function(data) {
+        var res = data;
+        if (res == "ok") {
+          alert('here');
+        }
+      });
+    });
+
+    $("#video_path_btn").click(function() {
+      var path = $('#video_path').val();
+      $.post( "/validate_video_path", {'folderpath': path}, function(data) {
+        var res = data;
+        alert(res);
+        if (res == "ok") {
+          alert("vid okay")
+        }
+      });
+    });
+
+
+
   });
 </script>
 
