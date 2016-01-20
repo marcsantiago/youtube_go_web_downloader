@@ -138,7 +138,7 @@ func main() {
 
 	jsPath := filepath.Join(path, "static/js")
 	if _, err := os.Stat(jsPath); err != nil {
-		log.Println(err, "here")
+		//for working with binary obj
 		filename := os.Args[0]
 		filedirectory := filepath.Dir(filename)
 		path, err = filepath.Abs(filedirectory)
