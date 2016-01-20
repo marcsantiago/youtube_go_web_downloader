@@ -110,8 +110,11 @@ func main() {
 		log.Fatal("unsupported platform")
 	}
 
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	js := http.FileServer(http.Dir("static/js"))
+	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
+
+	css := http.FileServer(http.Dir("static/css"))
+	http.Handle("/static/css/", http.StripPrefix("/static/css/", css))
 
 	http.HandleFunc("/", index)
 	http.HandleFunc("/run_setup", setup)
