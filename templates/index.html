@@ -30,7 +30,7 @@
       <form role="form">
         <div class="form-group">
           <label for="mp3_path">MP3 Download Folder Path:</label>
-          <input type="text" name="mp3_path" id="mp3_path" value="">
+          <input type="text" name="mp3_path" id="mp3_path" value="{{ .Mp3Path }}">
           <button id="mp3_path_btn" class="btn btn-default">Validate MP3 Path</button>
         </div>
       </form>
@@ -42,7 +42,7 @@
       <form role="form">
         <div class="form-group">
           <label for="video_path">Video Download Folder Path:</label>
-          <input type="text" name="video_path" id="video_path" value="">
+          <input type="text" name="video_path" id="video_path" value="{{ .VideoPath }}">
           <button id="video_path_btn" class="btn btn-default">Validate Video Path</button>
         </div>
       </form>
