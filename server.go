@@ -147,11 +147,6 @@ func main() {
 		}
 		jsPath = filepath.Join(path, "static/js")
 	}
-	log.Println("")
-	log.Println("")
-	log.Println(path)
-	log.Println("")
-	log.Println("")
 
 	js := http.FileServer(http.Dir(jsPath))
 	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
