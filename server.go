@@ -109,14 +109,17 @@ func main() {
 	default:
 		log.Fatal("unsupported platform")
 	}
-
+	//Link Static JS and CSS Files
 	js := http.FileServer(http.Dir("static/js"))
 	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
 
 	css := http.FileServer(http.Dir("static/css"))
 	http.Handle("/static/css/", http.StripPrefix("/static/css/", css))
 
+	//Load home page
 	http.HandleFunc("/", index)
+
+	//Post Request that handles installing ffmpeg on mac and windows
 	http.HandleFunc("/run_setup", setup)
 
 	log.Println("Listening at port 3000")
