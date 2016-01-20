@@ -130,6 +130,9 @@ func main() {
 	//Load home page
 	http.HandleFunc("/", index)
 
+	//Post Request that handles installing ffmpeg on mac and windows
+	http.HandleFunc("/run_setup", setup)
+
 	//Link Static JS and CSS Files
 	path, err := os.Getwd()
 	if err != nil {
@@ -154,9 +157,6 @@ func main() {
 	cssPath := filepath.Join(path, "static/css")
 	css := http.FileServer(http.Dir(cssPath))
 	http.Handle("/static/css/", http.StripPrefix("/static/css/", css))
-
-	//Post Request that handles installing ffmpeg on mac and windows
-	http.HandleFunc("/run_setup", setup)
 
 	log.Println("Listening at port 3000")
 	log.Fatal(http.ListenAndServe(":3000", Log(http.DefaultServeMux)))
