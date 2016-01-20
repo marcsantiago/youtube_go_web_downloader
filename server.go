@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+
 	"path/filepath"
 	"runtime"
 )
@@ -24,13 +25,29 @@ func Log(handler http.Handler) http.Handler {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("templates/index.html")
-	configData := SetupConfig{}
-	configData.Setup = false
+	// for working within go run
 	path, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	templatePath := filepath.Join(path, "/templates/index.html")
+	t, err := template.ParseFiles(templatePath)
+	if err != nil {
+		//for working with binary obj
+		filename := os.Args[0]
+		filedirectory := filepath.Dir(filename)
+		path, err = filepath.Abs(filedirectory)
+		if err != nil {
+			log.Fatal(err)
+		}
+		templatePath := filepath.Join(path, "/templates/index.html")
+		t, _ = template.ParseFiles(templatePath)
+	}
+
+	configData := SetupConfig{}
+	configData.Setup = false
+
 	configFile := filepath.Join(path, "/config_files/setup.json")
 	if _, err := os.Stat(configFile); err == nil {
 		file, err := ioutil.ReadFile(configFile)
@@ -109,15 +126,39 @@ func main() {
 	default:
 		log.Fatal("unsupported platform")
 	}
-	//Link Static JS and CSS Files
-	js := http.FileServer(http.Dir("static/js"))
-	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
-
-	css := http.FileServer(http.Dir("static/css"))
-	http.Handle("/static/css/", http.StripPrefix("/static/css/", css))
 
 	//Load home page
 	http.HandleFunc("/", index)
+
+	//Link Static JS and CSS Files
+	path, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jsPath := filepath.Join(path, "static/js")
+	if _, err := os.Stat(jsPath); err != nil {
+		log.Println(err, "here")
+		filename := os.Args[0]
+		filedirectory := filepath.Dir(filename)
+		path, err = filepath.Abs(filedirectory)
+		if err != nil {
+			log.Fatal(err)
+		}
+		jsPath = filepath.Join(path, "static/js")
+	}
+	log.Println("")
+	log.Println("")
+	log.Println(path)
+	log.Println("")
+	log.Println("")
+
+	js := http.FileServer(http.Dir(jsPath))
+	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
+
+	cssPath := filepath.Join(path, "static/css")
+	css := http.FileServer(http.Dir(cssPath))
+	http.Handle("/static/css/", http.StripPrefix("/static/css/", css))
 
 	//Post Request that handles installing ffmpeg on mac and windows
 	http.HandleFunc("/run_setup", setup)
