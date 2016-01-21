@@ -42,7 +42,7 @@
       <form role="form">
         <div class="form-group">
           <label for="video_path">Video Download Folder Path:</label>
-          <input style="width:50%" type="text" name="video_path" id="video_path" value="{{ .VideoPath }}"><span><i id="video_icon" class=""></i></span>
+          <input style="width:50%" type="text" name="video_path" id="video_path" value="{{ .VideoPath }}"><span><i id="video_icon"></i></span>
         </div>
         <button id="video_path_btn" class="btn btn-default">Change Or Validate Video Path</button>
       </form>
@@ -149,9 +149,9 @@
       $.post( "/validate_mp3_path", {'folderpath': path}, function(data) {
         var res = data;
         if (res == "ok") {
-          $("#mp3_icon").attr("class","glyphicon glyphicon-remove");
+          $("#mp3_icon").addClass("glyphicon glyphicon-ok");
         } else {
-          $("#mp3_icon").attr("class","glyphicon glyphicon-remove");
+          $("#mp3_icon").addClass("glyphicon glyphicon-remove");
         }
       });
     });
@@ -161,9 +161,9 @@
       $.post( "/validate_video_path", {'folderpath': path}, function(data) {
         var res = data;
         if (res == "ok") {
-          $("#video_icon").attr("class","glyphicon glyphicon-remove");
+          $("#video_icon").addClass("glyphicon glyphicon-ok");
         } else {
-          $("#video_icon").attr("class","glyphicon glyphicon-remove");
+          $("#video_icon").addClass("glyphicon glyphicon-remove");
         }
       });
     });

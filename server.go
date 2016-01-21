@@ -298,7 +298,7 @@ func main() {
 
 	fontPath := filepath.Join(path, "static/fonts")
 	font := http.FileServer(http.Dir(fontPath))
-	http.Handle("/static/css/", http.StripPrefix("/static/fonts/", font))
+	http.Handle("/static/fonts/", http.StripPrefix("/static/fonts/", font))
 
 	log.Println("Listening at port 3000")
 	log.Fatal(http.ListenAndServe(":3000", Log(http.DefaultServeMux)))
