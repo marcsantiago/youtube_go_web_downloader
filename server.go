@@ -88,6 +88,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, &masterConfig)
 }
 
+func exit(w http.ResponseWriter, r *http.Request) {
+	log.Println("Server Closed")
+	os.Exit(0)
+}
+
 func setup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		path, err := os.Getwd()
@@ -259,6 +264,7 @@ func main() {
 		exec.Command("open", "http://localhost:3000/").Start()
 	default:
 		log.Fatal("unsupported platform")
+		os.Exit(1)
 	}
 
 	//Load home page
@@ -270,6 +276,9 @@ func main() {
 	// validate mp3, video paths
 	http.HandleFunc("/validate_mp3_path", validateMp3)
 	http.HandleFunc("/validate_video_path", validateVideo)
+
+	// close server
+	http.HandleFunc("/close_server", exit)
 
 	//Link Static JS and CSS Files
 	path, err := os.Getwd()
