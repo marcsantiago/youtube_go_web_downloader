@@ -258,8 +258,10 @@ func main() {
 	switch runtime.GOOS {
 	case "linux":
 		exec.Command("xdg-open", "http://localhost:3000/").Start()
-	case "windows", "darwin":
+	case "darwin":
 		exec.Command("open", "http://localhost:3000/").Start()
+	case "windows":
+		exec.Command("C:\\Program Files\\Internet Explorer\\iexplore.exe", "http://localhost:3000/").Start()
 	case "unix":
 		exec.Command("open", "http://localhost:3000/").Start()
 	default:
