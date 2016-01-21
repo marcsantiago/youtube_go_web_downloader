@@ -99,12 +99,12 @@
   <br />
   <div id="url_div" class="row">
     <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
-      <form class="form-horizontal" role="form" action="/download_mp3" method="post">
+      <form class="form-horizontal" role="form">
         <div class="form-group">
           <label for="usr">URL:</label>
           <input type="text" class="form-control" name="url" id="url">
           <br />
-          <button type="submit" class="btn btn-default pull-right">Download Mp3</button>
+          <button id="download_btn" class="btn btn-default pull-right">Download Mp3</button>
         </div>
       </form>
     </div>
@@ -113,12 +113,12 @@
   <div id="batch_div" style="display: none;" class="container-fluid col-centered">
     <div class="row">
       <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
-        <form class="form-horizontal" role="form" action="/download_mp3s" method="post">
+        <form class="form-horizontal" role="form">
           <div class="form-group">
             <label for="usr">URLS:</label>
             <textarea type="text" class="form-control" name="urls" id="urls">Each Url Should Be Seperated With a Newline</textarea>
             <br />
-            <button type="submit" class="btn btn-default pull-right">Download Mp3s</button>
+            <button id="downloads_btn" class="btn btn-default pull-right">Download Mp3s</button>
           </div>
         </form>
         </div>
@@ -131,23 +131,32 @@
 <script src="static/js/jquery-2.2.0.min.js"></script>
 <script src="static/js/bootstrap.min.js"></script>
 <script>
+  var downloadConfigs = {
+    'SingleMode' : true,
+    'MP3Mode' : true,
+  };
   $(function() {
-    
     $('#download_mode_form').change(function(){
       if($('#url_mode').is(':checked')){
         $('#batch_div').hide();
         $('#url_div').show();
+        downloadConfigs['SingleMode'] = true;
       } else{
         $('#batch_div').show();
         $('#url_div').hide();
+        downloadConfigs['SingleMode'] = false;
       }
     });
     
     $('#mode_form').change(function(){
       if($('#mp3_mode').is(':checked')){
-
+        $('#downloads_btn').text('Download Mp3s')
+        $('#download_btn').text('Download Mp3')
+        downloadConfigs['MP3Mode'] = true;
       } else{
-
+        $('#downloads_btn').text('Download Videos')
+        $('#download_btn').text('Download Video')
+        downloadConfigs['MP3Mode'] = false;
       }
     });
 
@@ -190,6 +199,23 @@
         }
       });
     });
+
+    $("#download_btn").click(function() {
+      $.post( "/download", {}, function(data) {
+        var res = data;
+        if (res == "ok") {
+        }
+      });
+    });
+    
+    $("#downloads_btn").click(function() {
+      $.post( "/download", {}, function(data) {
+        var res = data;
+        if (res == "ok") {
+        }
+      });
+    });
+    
 
 
 

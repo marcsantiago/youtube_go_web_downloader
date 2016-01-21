@@ -253,6 +253,10 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func downloader(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func main() {
 
 	switch runtime.GOOS {
@@ -281,6 +285,9 @@ func main() {
 
 	// close server
 	http.HandleFunc("/close_server", exit)
+
+	// handle download request
+	http.HandleFunc("/download", downloader)
 
 	//Link Static JS and CSS Files
 	path, err := os.Getwd()
