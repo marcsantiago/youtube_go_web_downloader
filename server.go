@@ -335,11 +335,14 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloaderfile(basePath string, url string, mp3Mode string) {
-	os.Chdir(basePath)
+	//os.Chdir(basePath)
 	if mp3Mode == "true" {
 		if platform == "unix" {
 			log.Printf("Downloading mp3 %s\n", url)
-			cmd := exec.Command("/bin/sh", "-c", "python -m  youtube_dl --ignore-errors --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" "+url)
+			//NEED TO FIX THIS LINE
+			dl := filepath.Join(basePath, "youtube_dl")
+			tool := fmt.Sprintf("python -m  %s --ignore-errors --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" "+url, dl)
+			cmd := exec.Command("/bin/sh", "-c", tool)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			cmd.Run()
