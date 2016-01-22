@@ -43,6 +43,8 @@ var macPath string
 var windowsPath string
 var platform string
 var wg sync.WaitGroup
+var path string
+var err error
 
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -426,7 +428,7 @@ func main() {
 	http.HandleFunc("/download", downloader)
 
 	//Link Static JS and CSS Files
-	path, err := os.Getwd()
+	path, err = os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
