@@ -280,6 +280,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		mp3Mode := r.FormValue("MP3Mode")
 
 		//clean up the urls
+		log.Println("Checking Urls")
 		urlSplit := strings.Split(urlData, "\n")
 		for i := 0; i < len(urlSplit); i++ {
 			urlSplit[i] = strings.TrimSpace(urlSplit[i])
@@ -301,12 +302,15 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		case "windows":
 			basePath = windowsPath
 		}
+		log.Println("Downloading data")
 		for _, url := range urlSplit {
 			wg.Add(1)
 			downloaderfile(basePath, url, mp3Mode)
 		}
+		wg.Wait()
 
 		//checking for vidoes and moving
+		log.Println("Moving videos or mp3s to the current folder")
 		videos := checkExt(".m4a")
 		videos = append(videos, checkExt(".webm")...)
 		videos = append(videos, checkExt(".mp4")...)
@@ -323,6 +327,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 			currentMp3Path := filepath.Join(basePath, m)
 			os.Rename(currentMp3Path, masterConfig.Mp3Path)
 		}
+		log.Println("Complete Please Check Your Folders")
 		w.Write([]byte("ok"))
 	}
 }
