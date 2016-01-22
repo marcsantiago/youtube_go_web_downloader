@@ -31,6 +31,8 @@ type Config struct {
 }
 
 var masterConfig = Config{}
+var macPath string
+var windowsPath string
 
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -277,7 +279,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		for i := 0; i < len(urlSplit); i++ {
 			urlSplit[i] = strings.TrimSpace(urlSplit[i])
 		}
-
+		// check to make sure they are valid youtube urls
 		masterConfig.ValidUrl = true
 		for _, url := range urlSplit {
 			if checkUrl(url) == false {
@@ -350,6 +352,8 @@ func main() {
 		}
 		jsPath = filepath.Join(path, "static/js")
 	}
+	macPath = filepath.Join(path, "mac/")
+	windowsPath = filepath.Join(path, "windows/")
 
 	js := http.FileServer(http.Dir(jsPath))
 	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
