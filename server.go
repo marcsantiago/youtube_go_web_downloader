@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
+	"sync"
 
 	"path/filepath"
 	"runtime"
@@ -30,9 +33,16 @@ type Config struct {
 	ValidUrl  bool
 }
 
+type DownloaderInfo struct {
+	SingleMode bool
+	MP3Mode    bool
+}
+
 var masterConfig = Config{}
 var macPath string
 var windowsPath string
+var platform string
+var wg sync.WaitGroup
 
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -256,11 +266,6 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type DownloaderInfo struct {
-	SingleMode bool
-	MP3Mode    bool
-}
-
 func checkUrl(url string) bool {
 	if strings.Contains(url, "https://www.youtube.com/watch") == true || strings.Contains(url, "https://www.youtube.com/playlist") == true {
 		return true
@@ -272,7 +277,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		urlData := r.FormValue("url")
 		//singleMode := r.FormValue("SingleMode")
-		//mp3Mode := r.FormValue("MP3Mode")
+		mp3Mode := r.FormValue("MP3Mode")
 
 		//clean up the urls
 		urlSplit := strings.Split(urlData, "\n")
@@ -285,10 +290,74 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 			if checkUrl(url) == false {
 				masterConfig.ValidUrl = false
 				w.Write([]byte("not ok"))
+				return
 			}
 		}
 
+		var basePath string
+		switch platform {
+		case "unix":
+			basePath = filepath.Join(macPath, "youtube-dl")
+		case "windows":
+			basePath = windowsPath
+		}
+		for _, url := range urlSplit {
+			wg.Add(1)
+			downloaderfile(basePath, url, mp3Mode)
+		}
+
+		//checking for vidoes and moving
+		videos := checkExt(".m4a")
+		videos = append(videos, checkExt(".webm")...)
+		videos = append(videos, checkExt(".mp4")...)
+		videos = append(videos, checkExt(".3gp")...)
+		videos = append(videos, checkExt(".flv")...)
+		for _, vid := range videos {
+			currentVideoPath := filepath.Join(basePath, vid)
+			os.Rename(currentVideoPath, masterConfig.VideoPath)
+		}
+
+		//moving mp3s
+		mp3s := checkExt(".mp3")
+		for _, m := range mp3s {
+			currentMp3Path := filepath.Join(basePath, m)
+			os.Rename(currentMp3Path, masterConfig.Mp3Path)
+		}
+		w.Write([]byte("ok"))
 	}
+}
+
+func downloaderfile(basePath string, url string, mp3Mode string) {
+	os.Chdir(basePath)
+	if mp3Mode == "true" {
+		if platform == "unix" {
+			log.Printf("Downloading mp3 %s\n", url)
+			cmd := exec.Command("/bin/sh", "-c", "python -m  youtube_dl --ignore-errors --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" "+url)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		} else {
+			tool := fmt.Sprintf("youtube-dl.exe --ignore-errors --extract-audio --audio-format mp3 -o \"%%(title)s.%%(ext)s \" " + url)
+			cmd := exec.Command("cmd", "/C", tool)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		}
+	} else {
+		if platform == "unix" {
+			log.Printf("Downloading video %s\n", url)
+			cmd := exec.Command("/bin/sh", "-c", "python -m  youtube_dl -f 22 "+url)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		} else {
+			cmd := exec.Command("cmd", "/C", "youtube-dl.exe -f 22 "+url)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		}
+	}
+	wg.Done()
 }
 
 func MaxParallelism() int {
@@ -300,20 +369,36 @@ func MaxParallelism() int {
 	return numCPU
 }
 
+func checkExt(ext string) []string {
+	pathS, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	var files []string
+	filepath.Walk(pathS, func(path string, f os.FileInfo, _ error) error {
+		if !f.IsDir() {
+			r, err := regexp.MatchString(ext, f.Name())
+			if err == nil && r && (strings.Contains(f.Name(), "pyc") == false || strings.Contains(f.Name(), "mp3.py") == false) {
+				files = append(files, f.Name())
+			}
+		}
+		return nil
+	})
+	return files
+}
+
 func main() {
 	//set number of cores to use to max
 	runtime.GOMAXPROCS(MaxParallelism())
 	masterConfig.ValidUrl = true
 
 	switch runtime.GOOS {
-	case "linux":
-		exec.Command("xdg-open", "http://localhost:3000/").Start()
-	case "darwin":
+	case "darwin", "unix":
+		platform = "unix"
 		exec.Command("open", "http://localhost:3000/").Start()
 	case "windows":
+		platform = "windows"
 		exec.Command("C:\\Program Files\\Internet Explorer\\iexplore.exe", "http://localhost:3000/").Start()
-	case "unix":
-		exec.Command("open", "http://localhost:3000/").Start()
 	default:
 		log.Fatal("unsupported platform")
 		os.Exit(1)
