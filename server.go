@@ -27,6 +27,7 @@ type Config struct {
 	Setup     bool
 	Mp3Path   string
 	VideoPath string
+	ValidUrl  bool
 }
 
 var masterConfig = Config{}
@@ -253,11 +254,54 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func downloader(w http.ResponseWriter, r *http.Request) {
+type DownloaderInfo struct {
+	SingleMode bool
+	MP3Mode    bool
+}
 
+func checkUrl(url string) bool {
+	if strings.Contains(url, "https://www.youtube.com/watch") == true || strings.Contains(url, "https://www.youtube.com/playlist") == true {
+		return true
+	}
+	return false
+}
+
+func downloader(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		urlData := r.FormValue("url")
+		//singleMode := r.FormValue("SingleMode")
+		//mp3Mode := r.FormValue("MP3Mode")
+
+		//clean up the urls
+		urlSplit := strings.Split(urlData, "\n")
+		for i := 0; i < len(urlSplit); i++ {
+			urlSplit[i] = strings.TrimSpace(urlSplit[i])
+		}
+
+		masterConfig.ValidUrl = true
+		for _, url := range urlSplit {
+			if checkUrl(url) == false {
+				masterConfig.ValidUrl = false
+				w.Write([]byte("not ok"))
+			}
+		}
+
+	}
+}
+
+func MaxParallelism() int {
+	maxProcs := runtime.GOMAXPROCS(0)
+	numCPU := runtime.NumCPU()
+	if maxProcs < numCPU {
+		return maxProcs
+	}
+	return numCPU
 }
 
 func main() {
+	//set number of cores to use to max
+	runtime.GOMAXPROCS(MaxParallelism())
+	masterConfig.ValidUrl = true
 
 	switch runtime.GOOS {
 	case "linux":

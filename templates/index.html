@@ -97,6 +97,13 @@
 
   <br />
   <br />
+  {{ if eq .ValidUrl false}}
+    <div class="row">
+      <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
+        <h5 class="pull-right" style="color:red;">Url(s) is not a valid youtube url</h5>
+      </div>
+    </div>
+  {{ end }}
   <div id="url_div" class="row">
     <div class="col-sm-6 col-l-6 col-md-6 col-md-offset-3 col-l-offset-3 col-sm-offset-3">
       <form class="form-horizontal" role="form">
@@ -124,6 +131,10 @@
         </div>
     </div>
   </div>
+
+
+  
+  
 
 
 </body>
@@ -201,22 +212,22 @@
     });
 
     $("#download_btn").click(function() {
-      $.post( "/download", {}, function(data) {
+      var url = $("#url").val()
+      $.post( "/download", {"url": url, "SingleMode": downloadConfigs["SingleMode"], "MP3Mode": downloadConfigs["MP3Mode"]}, function(data) {
         var res = data;
         if (res == "ok") {
         }
       });
     });
-    
-    $("#downloads_btn").click(function() {
-      $.post( "/download", {}, function(data) {
-        var res = data;
-        if (res == "ok") {
-        }
-      });
-    });
-    
 
+    $("#downloads_btn").click(function() {
+      var url = $("#urls").val()
+      $.post( "/download", {"url": url, "SingleMode": downloadConfigs["SingleMode"], "MP3Mode": downloadConfigs["MP3Mode"]}, function(data) {
+        var res = data;
+        if (res == "ok") {
+        }
+      });
+    });
 
 
   });
