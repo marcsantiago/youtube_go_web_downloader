@@ -340,22 +340,15 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		var basePath string
-		switch platform {
-		case "unix":
-			basePath = filepath.Join(macPath, "youtube-dl-master")
-		case "windows":
-			basePath = windowsPath
-		}
 		log.Println("Downloading data")
 		for _, url := range urlSplit {
 			wg.Add(1)
-			downloaderfile(basePath, url, mp3Mode)
+			downloaderfile(url, mp3Mode)
 		}
 		wg.Wait()
 
 		//checking for vidoes and moving
-		log.Println(basePath)
+
 		log.Println(path)
 		log.Println("Moving videos or mp3s to the current folder")
 		videos := checkExt(".m4a")
@@ -364,7 +357,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		videos = append(videos, checkExt(".3gp")...)
 		videos = append(videos, checkExt(".flv")...)
 		for _, vid := range videos {
-			currentVideoPath := filepath.Join(basePath, vid)
+			currentVideoPath := filepath.Join(path, vid)
 			os.Rename(currentVideoPath, masterConfig.VideoPath)
 		}
 
@@ -382,7 +375,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 //////////////////////
 ////DOWNLOAD CONTENT
 //////////////////////
-func downloaderfile(basePath string, url string, mp3Mode string) {
+func downloaderfile(url string, mp3Mode string) {
 	if mp3Mode == "true" {
 		if platform == "unix" {
 			log.Printf("Downloading mp3 %s\n", url)
