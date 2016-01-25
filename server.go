@@ -128,6 +128,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 		templatePath := filepath.Join(path, "/templates/index.html")
 		t, _ = template.ParseFiles(templatePath)
+
+		checkErr(err, true)
+
 	}
 
 	masterConfig.Setup = false
@@ -189,7 +192,7 @@ func setup(w http.ResponseWriter, r *http.Request) {
 		cmd.Run()
 
 		shellScript := filepath.Join(path, "/scripts/install_ffmpeg.sh")
-		log.Printf("Please be patient installing homebrew, ffpmeg, and updating take a while\n")
+		log.Printf("Please be patient installing homebrew, ffpmeg, youtube-dl, and updating take a while\n")
 		cmd = exec.Command("/bin/sh", shellScript)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -378,18 +381,10 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 ////DOWNLOAD CONTENT
 //////////////////////
 func downloaderfile(basePath string, url string, mp3Mode string) {
-	//os.Chdir(basePath)
 	if mp3Mode == "true" {
 		if platform == "unix" {
 			log.Printf("Downloading mp3 %s\n", url)
-			//Python -m can't run if it's using a path to the folder, the python call must take place within
-			//the same directory... hence os.Chdir(basePath), however when you change the file path the template
-			//can no longer be found and go throws a memory address error.
-			//Posible solutions...
-			//1) translate the template to a variable like the go docs show
-			//2) compile the downloader to a standalone app
-			dl := filepath.Join(basePath, "youtube_dl")
-			tool := fmt.Sprintf("python -m  %s --ignore-errors --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" "+url, dl)
+			tool := fmt.Sprintf("youtube-dl --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" " + url)
 			cmd := exec.Command("/bin/sh", "-c", tool)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
