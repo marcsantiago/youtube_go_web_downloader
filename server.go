@@ -17,15 +17,9 @@ import (
 	"runtime"
 )
 
-type SetupConfig struct {
-	Setup bool
-}
-
-type PathConfig struct {
-	Mp3Path   string
-	VideoPath string
-}
-
+//////////////////////
+////DATA STRUCTURES
+//////////////////////
 type Config struct {
 	Setup     bool
 	Mp3Path   string
@@ -38,13 +32,75 @@ type DownloaderInfo struct {
 	MP3Mode    bool
 }
 
-var masterConfig = Config{}
-var macPath string
-var windowsPath string
-var platform string
-var wg sync.WaitGroup
-var path string
-var err error
+type SetupConfig struct {
+	Setup bool
+}
+
+type PathConfig struct {
+	Mp3Path   string
+	VideoPath string
+}
+
+//////////////////////
+////GLOBAL VARIABLES
+//////////////////////
+var (
+	masterConfig = Config{}
+	macPath      string
+	windowsPath  string
+	platform     string
+	path         string
+	err          error
+	wg           sync.WaitGroup
+)
+
+//////////////////////
+////HELPER METHODS
+//////////////////////
+func checkExt(ext string) []string {
+	pathS, err := os.Getwd()
+	checkErr(err, false)
+
+	var files []string
+	filepath.Walk(pathS, func(path string, f os.FileInfo, _ error) error {
+		if !f.IsDir() {
+			r, err := regexp.MatchString(ext, f.Name())
+			if err == nil && r && (strings.Contains(f.Name(), "pyc") == false || strings.Contains(f.Name(), "mp3.py") == false) {
+				files = append(files, f.Name())
+			}
+		}
+		return nil
+	})
+	return files
+}
+
+func checkErr(e error, fatal bool) {
+	if fatal {
+		if e != nil {
+			log.Fatal(e)
+		}
+	} else {
+		if e != nil {
+			panic(e)
+		}
+	}
+}
+
+func checkUrl(url string) bool {
+	if strings.Contains(url, "https://www.youtube.com/watch") == true || strings.Contains(url, "https://www.youtube.com/playlist") == true {
+		return true
+	}
+	return false
+}
+
+func MaxParallelism() int {
+	maxProcs := runtime.GOMAXPROCS(0)
+	numCPU := runtime.NumCPU()
+	if maxProcs < numCPU {
+		return maxProcs
+	}
+	return numCPU
+}
 
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -53,12 +109,13 @@ func Log(handler http.Handler) http.Handler {
 	})
 }
 
+//////////////////////
+////MAIN ROUTE (HOMEPAGE)
+//////////////////////
 func index(w http.ResponseWriter, r *http.Request) {
 	// for working within go run
 	path, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err, true)
 
 	templatePath := filepath.Join(path, "/templates/index.html")
 	t, err := template.ParseFiles(templatePath)
@@ -67,9 +124,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 		filename := os.Args[0]
 		filedirectory := filepath.Dir(filename)
 		path, err = filepath.Abs(filedirectory)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err, true)
+
 		templatePath := filepath.Join(path, "/templates/index.html")
 		t, _ = template.ParseFiles(templatePath)
 	}
@@ -79,9 +135,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	configFile := filepath.Join(path, "/config_files/setup.json")
 	if _, err := os.Stat(configFile); err == nil {
 		file, err := ioutil.ReadFile(configFile)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err, true)
 
 		temp := SetupConfig{}
 		json.Unmarshal(file, &temp)
@@ -91,9 +145,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	configFile = filepath.Join(path, "/config_files/folderpaths.json")
 	if _, err := os.Stat(configFile); err == nil {
 		file, err := ioutil.ReadFile(configFile)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err, true)
 
 		temp := PathConfig{}
 		json.Unmarshal(file, &temp)
@@ -103,17 +155,21 @@ func index(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, &masterConfig)
 }
 
+//////////////////////
+////CLOSE SERVER
+//////////////////////
 func exit(w http.ResponseWriter, r *http.Request) {
 	log.Println("Server Closed")
 	os.Exit(0)
 }
 
+//////////////////////
+////SETUP FFMPEG
+//////////////////////
 func setup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		path, err := os.Getwd()
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err, true)
 
 		batScript := filepath.Join(path, "/scripts/install_ffmpeg.bat")
 		if _, err := os.Stat(batScript); err != nil {
@@ -121,9 +177,8 @@ func setup(w http.ResponseWriter, r *http.Request) {
 			filename := os.Args[0]
 			filedirectory := filepath.Dir(filename)
 			path, err = filepath.Abs(filedirectory)
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
+
 			batScript = filepath.Join(path, "static/js")
 		}
 
@@ -145,21 +200,20 @@ func setup(w http.ResponseWriter, r *http.Request) {
 		setupConfig["Setup"] = true
 
 		obj, err := json.Marshal(setupConfig)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err, true)
 
 		f, err := os.Create(configPath)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err, true)
 		defer f.Close()
-		f.Write(obj)
 
+		f.Write(obj)
 		w.Write([]byte("ok"))
 	}
 }
 
+//////////////////////
+////ENSURE MP3 DOWNLOAD PATH
+//////////////////////
 func validateMp3(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		mp3Path := r.FormValue("folderpath")
@@ -169,18 +223,16 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 		} else {
 
 			path, err := os.Getwd()
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
+
 			configFolder := filepath.Join(path, "/config_files")
 			if _, err := os.Stat(configFolder); err != nil {
 				//for working with binary obj
 				filename := os.Args[0]
 				filedirectory := filepath.Dir(filename)
 				path, err = filepath.Abs(filedirectory)
-				if err != nil {
-					log.Fatal(err)
-				}
+				checkErr(err, true)
+
 			}
 			configPath := filepath.Join(path, "/config_files/folderpaths.json")
 			setupConfig := make(map[string]string)
@@ -188,9 +240,8 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 			if _, err := os.Stat(configPath); err == nil {
 				temp := PathConfig{}
 				file, err := ioutil.ReadFile(configPath)
-				if err != nil {
-					log.Fatal(err)
-				}
+				checkErr(err, true)
+
 				json.Unmarshal(file, &temp)
 				setupConfig["Mp3Path"] = mp3Path
 				setupConfig["VideoPath"] = temp.VideoPath
@@ -199,21 +250,21 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 			}
 
 			obj, err := json.Marshal(setupConfig)
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
 
 			f, err := os.Create(configPath)
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
 			defer f.Close()
+
 			f.Write(obj)
 			w.Write([]byte("ok"))
 		}
 	}
 }
 
+//////////////////////
+////ENSURE VIDEO DOWNLOAD PATH
+//////////////////////
 func validateVideo(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		videoPath := r.FormValue("folderpath")
@@ -223,18 +274,15 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 		} else {
 
 			path, err := os.Getwd()
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
+
 			configFolder := filepath.Join(path, "/config_files")
 			if _, err := os.Stat(configFolder); err != nil {
 				//for working with binary obj
 				filename := os.Args[0]
 				filedirectory := filepath.Dir(filename)
 				path, err = filepath.Abs(filedirectory)
-				if err != nil {
-					log.Fatal(err)
-				}
+				checkErr(err, true)
 			}
 			configPath := filepath.Join(path, "/config_files/folderpaths.json")
 			setupConfig := make(map[string]string)
@@ -242,9 +290,8 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 			if _, err := os.Stat(configPath); err == nil {
 				temp := PathConfig{}
 				file, err := ioutil.ReadFile(configPath)
-				if err != nil {
-					log.Fatal(err)
-				}
+				checkErr(err, true)
+
 				json.Unmarshal(file, &temp)
 				setupConfig["Mp3Path"] = temp.Mp3Path
 				setupConfig["VideoPath"] = videoPath
@@ -253,28 +300,21 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 			}
 
 			obj, err := json.Marshal(setupConfig)
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
 
 			f, err := os.Create(configPath)
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err, true)
 			defer f.Close()
+
 			f.Write(obj)
 			w.Write([]byte("ok"))
 		}
 	}
 }
 
-func checkUrl(url string) bool {
-	if strings.Contains(url, "https://www.youtube.com/watch") == true || strings.Contains(url, "https://www.youtube.com/playlist") == true {
-		return true
-	}
-	return false
-}
-
+//////////////////////
+////DOWNLOAD DRIVER
+//////////////////////
 func downloader(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		urlData := r.FormValue("url")
@@ -300,7 +340,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		var basePath string
 		switch platform {
 		case "unix":
-			basePath = filepath.Join(macPath, "youtube-dl")
+			basePath = filepath.Join(macPath, "youtube-dl-master")
 		case "windows":
 			basePath = windowsPath
 		}
@@ -334,12 +374,20 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//////////////////////
+////DOWNLOAD CONTENT
+//////////////////////
 func downloaderfile(basePath string, url string, mp3Mode string) {
 	//os.Chdir(basePath)
 	if mp3Mode == "true" {
 		if platform == "unix" {
 			log.Printf("Downloading mp3 %s\n", url)
-			//NEED TO FIX THIS LINE
+			//Python -m can't run if it's using a path to the folder, the python call must take place within
+			//the same directory... hence os.Chdir(basePath), however when you change the file path the template
+			//can no longer be found and go throws a memory address error.
+			//Posible solutions...
+			//1) translate the template to a variable like the go docs show
+			//2) compile the downloader to a standalone app
 			dl := filepath.Join(basePath, "youtube_dl")
 			tool := fmt.Sprintf("python -m  %s --ignore-errors --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" "+url, dl)
 			cmd := exec.Command("/bin/sh", "-c", tool)
@@ -370,33 +418,9 @@ func downloaderfile(basePath string, url string, mp3Mode string) {
 	wg.Done()
 }
 
-func MaxParallelism() int {
-	maxProcs := runtime.GOMAXPROCS(0)
-	numCPU := runtime.NumCPU()
-	if maxProcs < numCPU {
-		return maxProcs
-	}
-	return numCPU
-}
-
-func checkExt(ext string) []string {
-	pathS, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	var files []string
-	filepath.Walk(pathS, func(path string, f os.FileInfo, _ error) error {
-		if !f.IsDir() {
-			r, err := regexp.MatchString(ext, f.Name())
-			if err == nil && r && (strings.Contains(f.Name(), "pyc") == false || strings.Contains(f.Name(), "mp3.py") == false) {
-				files = append(files, f.Name())
-			}
-		}
-		return nil
-	})
-	return files
-}
-
+//////////////////////
+////MAIN (WHERE ROUTES ARE LOCATED)
+//////////////////////
 func main() {
 	//set number of cores to use to max
 	runtime.GOMAXPROCS(MaxParallelism())
@@ -432,9 +456,7 @@ func main() {
 
 	//Link Static JS and CSS Files
 	path, err = os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err, true)
 
 	jsPath := filepath.Join(path, "static/js")
 	if _, err := os.Stat(jsPath); err != nil {
@@ -447,6 +469,7 @@ func main() {
 		}
 		jsPath = filepath.Join(path, "static/js")
 	}
+
 	macPath = filepath.Join(path, "mac/")
 	windowsPath = filepath.Join(path, "windows/")
 
