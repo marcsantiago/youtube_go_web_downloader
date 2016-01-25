@@ -354,7 +354,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		wg.Wait()
 
 		//checking for vidoes and moving
-
+		path = strings.Replace(path, "desktop", "Desktop", -1)
 		log.Println(path)
 		log.Println("Moving videos or mp3s to the current folder")
 		videos := checkExt(".m4a")
@@ -364,17 +364,18 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		videos = append(videos, checkExt(".flv")...)
 		for _, vid := range videos {
 			currentVideoPath := filepath.Join(path, vid)
-			os.Rename(currentVideoPath, masterConfig.VideoPath)
+			newPath := filepath.Join(masterConfig.VideoPath, vid)
+			newPath = strings.Replace(newPath, "#", "", -1)
+			err = os.Rename(currentVideoPath, newPath)
+			checkErr(err, true)
 		}
 
 		//moving mp3s
 		mp3s := checkExt(".mp3")
 		for _, m := range mp3s {
 			currentMp3Path := filepath.Join(path, m)
-			log.Println("\"" + currentMp3Path + "\"")
-			log.Println("\"" + masterConfig.Mp3Path + "\"")
-
-			err = os.Rename("\""+currentMp3Path+"\"", "\""+masterConfig.Mp3Path+"\"")
+			newPath := filepath.Join(masterConfig.Mp3Path, m)
+			err = os.Rename(currentMp3Path, newPath)
 			checkErr(err, true)
 		}
 		log.Println("Complete Please Check Your Folders")
@@ -404,7 +405,7 @@ func downloaderfile(url string, mp3Mode string) {
 	} else {
 		if platform == "unix" {
 			log.Printf("Downloading video %s\n", url)
-			cmd := exec.Command("/bin/sh", "-c", "python -m  youtube_dl -f 22 "+url)
+			cmd := exec.Command("/bin/sh", "-c", "youtube-dl -f 22 "+url)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			cmd.Run()
