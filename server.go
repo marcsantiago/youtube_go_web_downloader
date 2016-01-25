@@ -182,10 +182,10 @@ func setup(w http.ResponseWriter, r *http.Request) {
 			path, err = filepath.Abs(filedirectory)
 			checkErr(err, true)
 
-			batScript = filepath.Join(path, "static/js")
+			batScript = filepath.Join(path, "/scripts/install_ffmpeg.bat")
 		}
 
-		log.Printf("Copying windows_ffmpeg contents to c:\\FFMPEG and adding the path env c:\\FFMPEG\\bin\n")
+		log.Printf("Copying windows_binaries contents to c:\\FFMPEG and adding the path env c:\\FFMPEG\\bin\n")
 		cmd := exec.Command("cmd", "/C", batScript)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -468,7 +468,7 @@ func main() {
 	}
 
 	macPath = filepath.Join(path, "mac/")
-	windowsPath = filepath.Join(path, "windows/")
+	windowsPath = filepath.Join(path, "windows_binaries/")
 
 	js := http.FileServer(http.Dir(jsPath))
 	http.Handle("/static/js/", http.StripPrefix("/static/js/", js))
