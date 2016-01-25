@@ -384,7 +384,7 @@ func downloaderfile(basePath string, url string, mp3Mode string) {
 	if mp3Mode == "true" {
 		if platform == "unix" {
 			log.Printf("Downloading mp3 %s\n", url)
-			tool := fmt.Sprintf("youtube-dl --extract-audio --audio-format mp3 -o \"%(title)s.%(ext)s \" " + url)
+			tool := fmt.Sprintf("youtube-dl --extract-audio --audio-format mp3 -o \"%%(title)s.%%(ext)s \" " + url)
 			cmd := exec.Command("/bin/sh", "-c", tool)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
