@@ -36,14 +36,22 @@
           </div>
       </div>
     </div>
-
+      <!-- $("#mp3_icon").addClass("glyphicon glyphicon-ok");
+    } else {
+      $("#mp3_icon").addClass("glyphicon glyphicon-remove");
+    } -->
     <br /><br />
     <div class="row">
       <div class="col-sm-6 col-lg-6 col-md-6">
         <form role="form">
           <div class="form-group">
             <label for="mp3_path">MP3 Download Folder Path:</label>
-            <input style="width:100%" type="text" name="mp3_path" id="mp3_path" value="{{ .Mp3Path }}"><span><i id="mp3_icon" class=""></i></span>
+            <input style="width:95%" type="text" name="mp3_path" id="mp3_path" value="{{ .Mp3Path }}">
+            {{ if eq .Mp3PathOkay true}}
+              <span><i id="mp3_icon" class="glyphicon glyphicon-ok"></i></span>
+            {{else}}
+              <span><i id="mp3_icon" class="glyphicon glyphicon-remove"></i></span>
+            {{ end }}
           </div>
           <button id="mp3_path_btn" class="btn btn-default">Change Or Validate MP3 Path</button>
         </form>
@@ -56,7 +64,12 @@
         <form role="form">
           <div class="form-group">
             <label for="video_path">Video Download Folder Path:</label>
-            <input style="width:100%" type="text" name="video_path" id="video_path" value="{{ .VideoPath }}"><span><i id="video_icon"></i></span>
+            <input style="width:95%" type="text" name="video_path" id="video_path" value="{{ .VideoPath }}">
+            {{ if eq .VideoPathOkay true}}
+              <span><i id="video_icon" class="glyphicon glyphicon-ok"></i></span>
+            {{else}}
+              <span><i id="video_icon" class="glyphicon glyphicon-remove"></i></span>
+            {{ end }}
           </div>
           <button id="video_path_btn" class="btn btn-default">Change Or Validate Video Path</button>
         </form>
@@ -196,11 +209,6 @@
       var path = $('#video_path').val();
       $.post( "/validate_video_path", {'folderpath': path}, function(data) {
         var res = data;
-        if (res == "ok") {
-          $("#video_icon").addClass("glyphicon glyphicon-ok");
-        } else {
-          $("#video_icon").addClass("glyphicon glyphicon-remove");
-        }
       });
     });
 

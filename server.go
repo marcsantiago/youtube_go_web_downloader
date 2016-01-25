@@ -21,10 +21,12 @@ import (
 ////DATA STRUCTURES
 //////////////////////
 type Config struct {
-	Setup     bool
-	Mp3Path   string
-	VideoPath string
-	ValidUrl  bool
+	Setup         bool
+	Mp3Path       string
+	Mp3PathOkay   bool
+	VideoPath     string
+	VideoPathOkay bool
+	ValidUrl      bool
 }
 
 type DownloaderInfo struct {
@@ -223,6 +225,7 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 		mp3Path = strings.TrimSpace(mp3Path)
 		if _, err := os.Stat(mp3Path); err != nil {
 			w.Write([]byte("not ok"))
+			masterConfig.Mp3PathOkay = false
 		} else {
 
 			path, err := os.Getwd()
@@ -260,6 +263,7 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 			defer f.Close()
 
 			f.Write(obj)
+			masterConfig.Mp3PathOkay = true
 			w.Write([]byte("ok"))
 		}
 	}
@@ -273,6 +277,7 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 		videoPath := r.FormValue("folderpath")
 		videoPath = strings.TrimSpace(videoPath)
 		if _, err := os.Stat(videoPath); err != nil {
+			masterConfig.VideoPathOkay = false
 			w.Write([]byte("not ok"))
 		} else {
 
@@ -310,6 +315,7 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 			defer f.Close()
 
 			f.Write(obj)
+			masterConfig.VideoPathOkay = true
 			w.Write([]byte("ok"))
 		}
 	}
@@ -365,7 +371,11 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		mp3s := checkExt(".mp3")
 		for _, m := range mp3s {
 			currentMp3Path := filepath.Join(path, m)
-			os.Rename("\""+currentMp3Path+"\"", "\""+masterConfig.Mp3Path+"\"")
+			log.Println("\"" + currentMp3Path + "\"")
+			log.Println("\"" + masterConfig.Mp3Path + "\"")
+
+			err = os.Rename("\""+currentMp3Path+"\"", "\""+masterConfig.Mp3Path+"\"")
+			checkErr(err, true)
 		}
 		log.Println("Complete Please Check Your Folders")
 		w.Write([]byte("ok"))
@@ -415,6 +425,8 @@ func main() {
 	//set number of cores to use to max
 	runtime.GOMAXPROCS(MaxParallelism())
 	masterConfig.ValidUrl = true
+	masterConfig.Mp3PathOkay = true
+	masterConfig.VideoPathOkay = true
 
 	switch runtime.GOOS {
 	case "darwin", "unix":
