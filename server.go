@@ -355,6 +355,8 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		wg.Wait()
 
 		//checking for vidoes and moving
+		log.Println(basePath)
+		log.Println(path)
 		log.Println("Moving videos or mp3s to the current folder")
 		videos := checkExt(".m4a")
 		videos = append(videos, checkExt(".webm")...)
@@ -369,8 +371,8 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		//moving mp3s
 		mp3s := checkExt(".mp3")
 		for _, m := range mp3s {
-			currentMp3Path := filepath.Join(basePath, m)
-			os.Rename(currentMp3Path, masterConfig.Mp3Path)
+			currentMp3Path := filepath.Join(path, m)
+			os.Rename("\""+currentMp3Path+"\"", "\""+masterConfig.Mp3Path+"\"")
 		}
 		log.Println("Complete Please Check Your Folders")
 		w.Write([]byte("ok"))
