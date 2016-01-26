@@ -382,6 +382,7 @@ func downloader(w http.ResponseWriter, r *http.Request) {
 		for _, m := range mp3s {
 			currentMp3Path := filepath.Join(path, m)
 			newPath := filepath.Join(masterConfig.Mp3Path, m)
+			newPath = strings.Replace(newPath, "#", "", -1)
 			err = os.Rename(currentMp3Path, newPath)
 			checkErr(err, true)
 		}
