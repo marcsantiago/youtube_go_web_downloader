@@ -91,7 +91,7 @@ func checkErr(e error, fatal bool) {
 
 func checkUrl(url string) bool {
 	//Modify this method to except more type of links
-	if strings.Contains(url, "https://www") == true {
+	if strings.Contains(url, "https://") == true {
 		return true
 	}
 	return false
