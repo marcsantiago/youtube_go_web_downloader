@@ -52,6 +52,7 @@ var (
 	windowsPath  string
 	platform     string
 	path         string
+	Warning		 bool
 	err          error
 	wg           sync.WaitGroup
 )
@@ -434,6 +435,7 @@ func main() {
 	masterConfig.ValidUrl = true
 	masterConfig.Mp3PathOkay = true
 	masterConfig.VideoPathOkay = true
+	masterConfig.Warning = false
 
 	switch runtime.GOOS {
 	case "darwin", "unix":
@@ -441,7 +443,19 @@ func main() {
 		exec.Command("open", "http://localhost:3000/").Start()
 	case "windows":
 		platform = "windows"
-		exec.Command("C:\\Program Files\\Internet Explorer\\iexplore.exe", "http://localhost:3000/").Start()
+		//chrome
+		cmd := exec.Command("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "http://localhost:3000/")
+		err := cmd.Run()
+		if err != nil {
+			//firefox
+			cmd = exec.Command("C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe", "http://localhost:3000/")
+			err = cmd.Run()
+			//internet explore
+			if err != nil {
+				exec.Command("C:\\Program Files\\Internet Explorer\\iexplore.exe", "http://localhost:3000/").Start()
+				masterConfig.Warning = true
+			}
+		}
 	default:
 		log.Fatal("unsupported platform")
 		os.Exit(1)
