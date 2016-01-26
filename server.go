@@ -184,22 +184,27 @@ func setup(w http.ResponseWriter, r *http.Request) {
 			filedirectory := filepath.Dir(filename)
 			path, err = filepath.Abs(filedirectory)
 			checkErr(err, true)
-
 			batScript = filepath.Join(path, "/scripts/install_ffmpeg.bat")
 		}
 
-		log.Printf("Copying windows_binaries contents to c:\\FFMPEG and adding the path env c:\\FFMPEG\\bin\n")
-		cmd := exec.Command("cmd", "/C", batScript)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Run()
-
-		shellScript := filepath.Join(path, "/scripts/install_ffmpeg.sh")
-		log.Printf("Please be patient installing homebrew, ffpmeg, youtube-dl, and updating take a while\n")
-		cmd = exec.Command("/bin/sh", shellScript)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Run()
+		switch runtime.GOOS {
+		case "darwin", "unix":
+			shellScript := filepath.Join(path, "/scripts/install_ffmpeg.sh")
+			log.Printf("Please be patient installing homebrew, ffpmeg, youtube-dl, and updating take a while\n")
+			cmd := exec.Command("/bin/sh", shellScript)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		case "windows":
+			log.Printf("Copying windows_binaries contents to c:\\FFMPEG and adding the path env c:\\FFMPEG\\bin\n")
+			cmd := exec.Command("cmd", "/C", batScript)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		default:
+			log.Fatal("unsupported platform")
+			os.Exit(1)
+		}
 
 		configPath := filepath.Join(path, "/config_files/setup.json")
 		setupConfig := make(map[string]bool)
