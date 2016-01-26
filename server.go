@@ -89,6 +89,7 @@ func checkErr(e error, fatal bool) {
 }
 
 func checkUrl(url string) bool {
+	//Modify this method to except more type of links
 	if strings.Contains(url, "https://www.youtube.com/watch") == true || strings.Contains(url, "https://www.youtube.com/playlist") == true {
 		return true
 	}

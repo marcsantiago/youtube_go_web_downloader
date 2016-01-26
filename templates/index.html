@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="test/css" href="static/css/bootstrap.min.css">
 </head>
 <body>
-  <div style="margin: auto; margin-left:30%;">
+  <div style="margin: auto; margin-left:20%;">
       <div class="row">
         <div class="col-sm-6 col-lg-6 col-md-6">
           <a href="http://www.BannerFans.com"><img src="http://imagizer.imageshack.com/img907/849/bUJdcf.jpg" border="0" width="729" height="90" alt="BannerFans.com" /></a>
@@ -137,6 +137,13 @@
           </div>
       </div>
     </div>
+    <div class="row">
+      <div class="col-sm-6 col-lg-6 col-md-6">
+        <h5>
+          Please check the server (Your Terminal or Command Prompt For the Status of Your Download (The black screen that opened with your browser))
+        </h5>
+      </div>
+    </div>
   </div>
 </body>
 
@@ -210,7 +217,7 @@
     });
 
     $("#download_btn").click(function() {
-      var url = $("#url").val()
+      var url = $("#url").val();
       $.post( "/download", {"url": url, "SingleMode": downloadConfigs["SingleMode"], "MP3Mode": downloadConfigs["MP3Mode"]}, function(data) {
         var res = data;
         if (res == "ok") {
@@ -219,14 +226,13 @@
     });
 
     $("#downloads_btn").click(function() {
-      var url = $("#urls").val()
+      var url = $("#urls").val();
       $.post( "/download", {"url": url, "SingleMode": downloadConfigs["SingleMode"], "MP3Mode": downloadConfigs["MP3Mode"]}, function(data) {
         var res = data;
         if (res == "ok") {
         }
       });
     });
-
 
   });
 </script>
