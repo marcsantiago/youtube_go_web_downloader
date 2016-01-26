@@ -27,6 +27,7 @@ type Config struct {
 	VideoPath     string
 	VideoPathOkay bool
 	ValidUrl      bool
+	Warning		  bool
 }
 
 type DownloaderInfo struct {
@@ -52,7 +53,6 @@ var (
 	windowsPath  string
 	platform     string
 	path         string
-	Warning		 bool
 	err          error
 	wg           sync.WaitGroup
 )
