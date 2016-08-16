@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	//set number of cores to use to max
 	runtime.GOMAXPROCS(MaxParallelism())
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", homepage.Index)
