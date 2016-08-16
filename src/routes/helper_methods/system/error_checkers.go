@@ -2,7 +2,8 @@ package system
 
 import "log"
 
-func checkErr(e error, fatal bool) {
+// CheckErr ...
+func CheckErr(e error, fatal bool) {
 	if fatal {
 		if e != nil {
 			log.Fatal(e)

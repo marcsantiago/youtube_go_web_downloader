@@ -10,7 +10,7 @@ import (
 // CheckExt ...
 func CheckExt(ext string) []string {
 	paths, err := os.Getwd()
-	checkErr(err, false)
+	CheckErr(err, false)
 
 	var files []string
 	filepath.Walk(paths, func(path string, f os.FileInfo, _ error) error {

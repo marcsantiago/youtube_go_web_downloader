@@ -7,13 +7,15 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"../helper_methods/system"
 )
 
 // Index ...
 func Index(w http.ResponseWriter, r *http.Request) {
 	// for working within go run
 	path, err := os.Getwd()
-	checkErr(err, true)
+	system.CheckErr(err, true)
 
 	templatePath := filepath.Join(path, "/templates/index.html")
 	t, err := template.ParseFiles(templatePath)
@@ -22,12 +24,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		filename := os.Args[0]
 		filedirectory := filepath.Dir(filename)
 		path, err = filepath.Abs(filedirectory)
-		checkErr(err, true)
+		system.CheckErr(err, true)
 
 		templatePath := filepath.Join(path, "/templates/index.html")
 		t, _ = template.ParseFiles(templatePath)
 
-		checkErr(err, true)
+		system.CheckErr(err, true)
 
 	}
 
@@ -36,7 +38,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	configFile := filepath.Join(path, "/config_files/setup.json")
 	if _, err := os.Stat(configFile); err == nil {
 		file, err := ioutil.ReadFile(configFile)
-		checkErr(err, true)
+		system.CheckErr(err, true)
 
 		temp := SetupConfig{}
 		json.Unmarshal(file, &temp)
@@ -46,7 +48,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	configFile = filepath.Join(path, "/config_files/folderpaths.json")
 	if _, err := os.Stat(configFile); err == nil {
 		file, err := ioutil.ReadFile(configFile)
-		checkErr(err, true)
+		system.CheckErr(err, true)
 
 		temp := PathConfig{}
 		json.Unmarshal(file, &temp)
