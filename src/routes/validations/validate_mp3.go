@@ -1,4 +1,4 @@
-package validator
+package validations
 
 import (
 	"encoding/json"
@@ -7,9 +7,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"../helper_methods/system"
 )
 
-func validateMp3(w http.ResponseWriter, r *http.Request) {
+// ValidateMp3 ...
+func ValidateMp3(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		mp3Path := r.FormValue("folderpath")
 		mp3Path = strings.TrimSpace(mp3Path)
@@ -19,7 +22,7 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 		} else {
 
 			path, err := os.Getwd()
-			checkErr(err, true)
+			system.CheckErr(err, true)
 
 			configFolder := filepath.Join(path, "/config_files")
 			if _, err := os.Stat(configFolder); err != nil {
@@ -27,7 +30,7 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 				filename := os.Args[0]
 				filedirectory := filepath.Dir(filename)
 				path, err = filepath.Abs(filedirectory)
-				checkErr(err, true)
+				system.CheckErr(err, true)
 
 			}
 			configPath := filepath.Join(path, "/config_files/folderpaths.json")
@@ -36,7 +39,7 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 			if _, err := os.Stat(configPath); err == nil {
 				temp := PathConfig{}
 				file, err := ioutil.ReadFile(configPath)
-				checkErr(err, true)
+				system.CheckErr(err, true)
 
 				json.Unmarshal(file, &temp)
 				setupConfig["Mp3Path"] = mp3Path
@@ -46,10 +49,10 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 			}
 
 			obj, err := json.Marshal(setupConfig)
-			checkErr(err, true)
+			system.CheckErr(err, true)
 
 			f, err := os.Create(configPath)
-			checkErr(err, true)
+			system.CheckErr(err, true)
 			defer f.Close()
 
 			f.Write(obj)
@@ -59,10 +62,8 @@ func validateMp3(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//////////////////////
-////ENSURE VIDEO DOWNLOAD PATH
-//////////////////////
-func validateVideo(w http.ResponseWriter, r *http.Request) {
+// ValidateVideo ...
+func ValidateVideo(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		videoPath := r.FormValue("folderpath")
 		videoPath = strings.TrimSpace(videoPath)
@@ -72,7 +73,7 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 		} else {
 
 			path, err := os.Getwd()
-			checkErr(err, true)
+			system.CheckErr(err, true)
 
 			configFolder := filepath.Join(path, "/config_files")
 			if _, err := os.Stat(configFolder); err != nil {
@@ -80,7 +81,7 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 				filename := os.Args[0]
 				filedirectory := filepath.Dir(filename)
 				path, err = filepath.Abs(filedirectory)
-				checkErr(err, true)
+				system.CheckErr(err, true)
 			}
 			configPath := filepath.Join(path, "/config_files/folderpaths.json")
 			setupConfig := make(map[string]string)
@@ -88,7 +89,7 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 			if _, err := os.Stat(configPath); err == nil {
 				temp := PathConfig{}
 				file, err := ioutil.ReadFile(configPath)
-				checkErr(err, true)
+				system.CheckErr(err, true)
 
 				json.Unmarshal(file, &temp)
 				setupConfig["Mp3Path"] = temp.Mp3Path
@@ -98,10 +99,10 @@ func validateVideo(w http.ResponseWriter, r *http.Request) {
 			}
 
 			obj, err := json.Marshal(setupConfig)
-			checkErr(err, true)
+			system.CheckErr(err, true)
 
 			f, err := os.Create(configPath)
-			checkErr(err, true)
+			system.CheckErr(err, true)
 			defer f.Close()
 
 			f.Write(obj)

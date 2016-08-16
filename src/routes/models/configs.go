@@ -9,21 +9,10 @@ type Config struct {
 	VideoPathOkay bool
 	ValidURL      bool
 	Warning       bool
+	Setup         bool
 }
 
-// DownloaderInfo ...
-type DownloaderInfo struct {
-	SingleMode bool
-	MP3Mode    bool
-}
-
-// SetupConfig ...
-type SetupConfig struct {
-	Setup bool
-}
-
-// PathConfig ...
-type PathConfig struct {
-	Mp3Path   string
-	VideoPath string
+// DownloadMode ...
+type DownloadMode struct {
+	Mode string
 }

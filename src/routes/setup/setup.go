@@ -1,4 +1,4 @@
-package setups
+package setup
 
 import (
 	"encoding/json"
@@ -8,13 +8,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"../helper_methods/system"
 )
 
 // Setup ...
 func Setup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		path, err := os.Getwd()
-		checkErr(err, true)
+		system.CheckErr(err, true)
 
 		batScript := filepath.Join(path, "/scripts/install_ffmpeg.bat")
 		if _, err := os.Stat(batScript); err != nil {
@@ -22,7 +24,7 @@ func Setup(w http.ResponseWriter, r *http.Request) {
 			filename := os.Args[0]
 			filedirectory := filepath.Dir(filename)
 			path, err = filepath.Abs(filedirectory)
-			checkErr(err, true)
+			system.CheckErr(err, true)
 			batScript = filepath.Join(path, "/scripts/install_ffmpeg.bat")
 		}
 
@@ -50,10 +52,10 @@ func Setup(w http.ResponseWriter, r *http.Request) {
 		setupConfig["Setup"] = true
 
 		obj, err := json.Marshal(setupConfig)
-		checkErr(err, true)
+		system.CheckErr(err, true)
 
 		f, err := os.Create(configPath)
-		checkErr(err, true)
+		system.CheckErr(err, true)
 		defer f.Close()
 
 		f.Write(obj)

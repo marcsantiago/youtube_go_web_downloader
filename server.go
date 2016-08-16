@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"runtime"
 
+	"./src/routes/downloader"
 	"./src/routes/helper_methods/decorators"
 	"./src/routes/helper_methods/system"
 	"./src/routes/homepage"
+	"./src/routes/setup"
+	"./src/routes/validations"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 )
@@ -16,28 +19,17 @@ func main() {
 	runtime.GOMAXPROCS(system.MaxParallelism())
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", homepage.Index)
+	//Post Request that handles installing ffmpeg on mac and windows
+	myRouter.HandleFunc("/run_setup", setup.Setup)
+	// validate mp3, video paths
+	myRouter.HandleFunc("/validate_mp3_path", validations.ValidateMp3)
+	myRouter.HandleFunc("/validate_video_path", validations.ValidateVideo)
+	// handle download request
+	myRouter.HandleFunc("/download", downloader.Downloader)
+	// serve static contents
+	myRouter.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	log.Fatal(http.ListenAndServe(":8001", context.ClearHandler(decorators.Log((myRouter)))))
 
-	// //Load home page
-	// http.HandleFunc("/", index)
-	//
-	// //Post Request that handles installing ffmpeg on mac and windows
-	// http.HandleFunc("/run_setup", setup)
-	//
-	// // validate mp3, video paths
-	// http.HandleFunc("/validate_mp3_path", validateMp3)
-	// http.HandleFunc("/validate_video_path", validateVideo)
-	//
-	// // close server
-	// http.HandleFunc("/close_server", exit)
-	//
-	// // handle download request
-	// http.HandleFunc("/download", downloader)
-	//
-	// //Link Static JS and CSS Files
-	// path, err = os.Getwd()
-	// checkErr(err, true)
-	//
 	// jsPath := filepath.Join(path, "static/js")
 	// if _, err := os.Stat(jsPath); err != nil {
 	// 	//for working with binary obj
