@@ -53,5 +53,4 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		masterConfig.VideoPath = temp.VideoPath
 	}
 	t.Execute(w, &masterConfig)
-	t.Execute(w, &masterConfig)
 }
