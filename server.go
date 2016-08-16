@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"runtime"
 
+	"./src/routes/helper_methods/decorators"
 	"./src/routes/homepage"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -14,7 +15,7 @@ func main() {
 	runtime.GOMAXPROCS(MaxParallelism())
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", homepage.Index)
-	log.Fatal(http.ListenAndServe(":8001", context.ClearHandler(admin.Log((myRouter)))))
+	log.Fatal(http.ListenAndServe(":8001", context.ClearHandler(decorators.Log((myRouter)))))
 
 	// //Load home page
 	// http.HandleFunc("/", index)
