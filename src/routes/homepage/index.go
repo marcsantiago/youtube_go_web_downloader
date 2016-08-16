@@ -16,7 +16,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	// for working within go run
 	path, err := os.Getwd()
 	system.CheckErr(err, true)
-
 	templatePath := filepath.Join(path, "/templates/index.html")
 	t, err := template.ParseFiles(templatePath)
 	if err != nil {
@@ -25,10 +24,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		filedirectory := filepath.Dir(filename)
 		path, err = filepath.Abs(filedirectory)
 		system.CheckErr(err, true)
-
 		templatePath := filepath.Join(path, "/templates/index.html")
 		t, _ = template.ParseFiles(templatePath)
-
 		system.CheckErr(err, true)
 
 	}
@@ -55,5 +52,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		masterConfig.Mp3Path = temp.Mp3Path
 		masterConfig.VideoPath = temp.VideoPath
 	}
+	t.Execute(w, &masterConfig)
 	t.Execute(w, &masterConfig)
 }
