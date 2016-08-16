@@ -4,30 +4,15 @@ import (
 	"log"
 	"net/http"
 	"runtime"
-	"sync"
 
 	"./src/routes/homepage"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 )
 
-var (
-	masterConfig = Config{}
-	macPath      string
-	windowsPath  string
-	path         string
-	err          error
-	wg           sync.WaitGroup
-)
-
 func main() {
 	//set number of cores to use to max
 	runtime.GOMAXPROCS(MaxParallelism())
-	masterConfig.ValidUrl = true
-	masterConfig.Mp3PathOkay = true
-	masterConfig.VideoPathOkay = true
-	masterConfig.Warning = false
-
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", homepage.Index)
 	log.Fatal(http.ListenAndServe(":8001", context.ClearHandler(admin.Log((myRouter)))))
