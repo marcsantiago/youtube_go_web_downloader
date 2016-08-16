@@ -9,7 +9,10 @@ import (
 	"path/filepath"
 
 	"../helper_methods/system"
+	"../models"
 )
+
+var masterConfig = models.Config{}
 
 // Index ...
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +20,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	path, err := os.Getwd()
 	system.CheckErr(err, true)
 	templatePath := filepath.Join(path, "/templates/index.html")
+
 	t, err := template.ParseFiles(templatePath)
 	if err != nil {
 		//for working with binary obj
@@ -37,7 +41,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		file, err := ioutil.ReadFile(configFile)
 		system.CheckErr(err, true)
 
-		temp := SetupConfig{}
+		temp := models.SetupConfig{}
 		json.Unmarshal(file, &temp)
 		masterConfig.Setup = temp.Setup
 	}
@@ -47,7 +51,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		file, err := ioutil.ReadFile(configFile)
 		system.CheckErr(err, true)
 
-		temp := PathConfig{}
+		temp := models.PathConfig{}
 		json.Unmarshal(file, &temp)
 		masterConfig.Mp3Path = temp.Mp3Path
 		masterConfig.VideoPath = temp.VideoPath
